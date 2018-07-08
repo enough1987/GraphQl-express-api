@@ -8,24 +8,12 @@ const {
     GraphQLID,
     GraphQLInt,
     GraphQLList,
+    GraphQLNonNull
 } = require('graphql');
 
-// dummy data
-let posts = [
-    { massage: 'Name of the Wind', id: '1', userId: '1' },
-    { massage: 'The Final Empire', id: '2', userId: '2' },
-    { massage: 'The Hero of Ages', id: '4', userId: '2' },
-    { massage: 'The Long Earth', id: '3', userId: '3' },
-    { massage: 'The Colour of Magic', id: '5', userId: '3' },
-    { massage: 'The Light Fantastic', id: '6', userId: '3' },
-];
-
-let users = [
-    { name: 'Patrick Rothfuss', age: 44, id: '1' },
-    { name: 'Brandon Sanderson', age: 42, id: '2' },
-    { name: 'Terry Pratchett', age: 66, id: '3' },
-];
-//////////////////
+// models
+const Post = require('../models/post');
+const User = require('../models/user');
 
 
 const PostType = new GraphQLObjectType({
@@ -36,7 +24,8 @@ const PostType = new GraphQLObjectType({
         user: {
             type: UserType,
             resolve(parent, args){
-                return _.find(users, { id: parent.userId });
+                // code to get data from db / other source
+                return User.findById(parent.userId);
             }
         }
     })
@@ -51,7 +40,8 @@ const UserType = new GraphQLObjectType({
         posts: {
             type: new GraphQLList(PostType),
             resolve(parent, args){
-                return _.filter(posts, { userId: parent.id });
+                // code to get data from db / other source
+                return Post.find({ userId: parent.id });
             }
         }
     })
@@ -66,7 +56,7 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(PostType),
             resolve(parent, args){
                 // code to get data from db / other source
-                return posts;
+                return Post.find({});
             }
         },
         post: {
@@ -74,26 +64,61 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args){
                 // code to get data from db / other source
-                return _.find(posts, { id: args.id });
+                return Post.findById(args.id);
             }
         },
         users: {
             type: new GraphQLList(UserType),
             resolve(parent, args){
                 // code to get data from db / other source
-                return users;
+                return User.find({});
             }
         },
         user: {
             type: UserType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args){
-                return _.find(users, { id: args.id });
+                return User.findById(args.id);
+            }
+        }
+    }
+});
+
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addUser: {
+            type: UserType,
+            args: {
+                name: { type: GraphQLString },
+                age: { type: GraphQLInt }
+            },
+            resolve(parent, args){
+                const user = new User({
+                    name: args.name,
+                    age: args.age
+                });
+                return user.save();
+            }
+        },
+        addPost: {
+            type: PostType,
+            args: {
+                massage: { type: new GraphQLNonNull(GraphQLString) },
+                userId: { type: new GraphQLNonNull(GraphQLID) }
+            },
+            resolve(parent, args){
+                const post = new Post({
+                    massage: args.massage,
+                    userId: args.userId
+                });
+                return post.save();
             }
         }
     }
 });
 
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation: Mutation
 });
