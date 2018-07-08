@@ -20,7 +20,7 @@ const PostType = new GraphQLObjectType({
     name: 'Post',
     fields: ( ) => ({
         id: { type: GraphQLID },
-        massage: { type: GraphQLString },
+        message: { type: GraphQLString },
         user: {
             type: UserType,
             resolve(parent, args){
@@ -104,12 +104,13 @@ const Mutation = new GraphQLObjectType({
         addPost: {
             type: PostType,
             args: {
-                massage: { type: new GraphQLNonNull(GraphQLString) },
+                message: { type: new GraphQLNonNull(GraphQLString) },
                 userId: { type: new GraphQLNonNull(GraphQLID) }
             },
             resolve(parent, args){
+                console.log(' ARGS : ', args);
                 const post = new Post({
-                    massage: args.massage,
+                    message: args.message,
                     userId: args.userId
                 });
                 return post.save();
