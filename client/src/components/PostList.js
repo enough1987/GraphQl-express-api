@@ -8,6 +8,8 @@ class PostList extends Component {
     displayPosts(){
         const data = this.props.data;
 
+        console.log( ' DATA : ', data.posts, data );
+
         if(data.loading){
             return( <div>Loading posts...</div> );
         } else if (!data.posts) {
@@ -23,6 +25,11 @@ class PostList extends Component {
                         <span>
                             { post.user.name }
                         </span>
+                        { ' ( id is : ' }
+                        <span>
+                            { post.user.id }
+                        </span>
+                        { ' ) ' }
                     </p>
                 );
             })

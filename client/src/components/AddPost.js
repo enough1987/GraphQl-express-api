@@ -6,19 +6,29 @@ class AddPost extends Component {
     constructor(props){
         super(props);
         this.state = {
-            message: ''
+            message: '',
+            userId: '',
+            error: ''
         };
     }
 
     submitForm(e){
         e.preventDefault();
+        this.setState({
+            error: ''
+        });
 
         this.props.addPostMutation({
             variables: {
                 message: this.state.message,
-                userId: "5b4236e601c69133b3defbe4"
+                userId: this.state.userId
             },
             refetchQueries: [{ query: getPostQuery }]
+        }).then(null, (error) => {
+            console.log(' Error : ', error);
+            this.setState({
+                error: 'error'
+            });
         });
     }
     render(){
@@ -27,6 +37,10 @@ class AddPost extends Component {
                 <div className="field">
                     <label>Post message :</label>
                     <input type="text" onChange={ (e) => this.setState({ message: e.target.value }) } />
+                </div>
+                <div className="field">
+                    <label>User id :</label>
+                    <input type="text" onChange={ (e) => this.setState({ userId: e.target.value }) } />
                 </div>
                 <button> Add </button>
             </form>

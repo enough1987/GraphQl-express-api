@@ -8,6 +8,7 @@ const getPostQuery = gql`
             message
             user {
                 name
+                id
             }
         }
     }
@@ -19,7 +20,6 @@ const addPostMutation = gql`
             message
             user {
                 name
-                id
             }
         }
     }
